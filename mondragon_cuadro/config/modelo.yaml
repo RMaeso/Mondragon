@@ -1,0 +1,118 @@
+# Especificación del núcleo, priors de estado estacionario y anclas del escenario base.
+
+muestra:
+  inicio: 2000Q1
+  excluir: [2020Q1, 2020Q2, 2020Q3, 2020Q4, 2021Q1, 2021Q2]  # ecuaciones fuera de la verosimilitud
+  horizonte_fin: 2029Q4
+
+nucleo:
+  retardos: 2
+  lambda1: 0.2        # se contrasta en el backtest con 0.1 y 0.3
+  lambda2: 0.5
+  sorteos: 4000
+  descarte: 1000
+  # Media de largo plazo (estado estacionario) en unidades del modelo:
+  # dlog = 100 x variación logarítmica trimestral; nivel = unidades de la serie.
+  # Son supuestos del equipo, revisables; la desviación típica fija cuánto pesan frente a los datos.
+  variables:
+    pib_ea:           {media: 0.30, sd: 0.10, propio: 0.0, nota: "≈1,2 % anual"}
+    pib_es:           {media: 0.40, sd: 0.10, propio: 0.0, nota: "≈1,6 % anual"}
+    pib_pv:           {media: 0.38, sd: 0.15, propio: 0.0, nota: "≈1,5 % anual"}
+    hicp_es:          {media: 0.50, sd: 0.08, propio: 0.0, nota: "≈2 % anual, objetivo del BCE"}
+    euribor3m:        {media: 2.25, sd: 0.50, propio: 0.9, nota: "tipo neutral estimado; supuesto"}
+    eurusd:           {media: 0.00, sd: 0.50, propio: 0.0}
+    brent:            {media: 0.00, sd: 2.00, propio: 0.0}
+    gas:              {media: 0.00, sd: 3.00, propio: 0.0}
+    confianza_ind_ea: {media: muestral, sd: 4.0, propio: 0.9}
+
+satelites:
+  # impulsores: variables del núcleo que entran en t y t-1. rho0: media del prior del propio retardo.
+  ipi_c29_eu:            {impulsores: [pib_ea, confianza_ind_ea], rho0: 0.2}
+  ipi_c29_es:            {impulsores: [pib_ea, confianza_ind_ea], rho0: 0.2}
+  aluminio:              {impulsores: [brent, eurusd, confianza_ind_ea], rho0: 0.3}
+  ppi_plasticos_eu:      {impulsores: [brent, gas], rho0: 0.5}
+  coste_laboral_es:      {impulsores: [hicp_es, pib_es], rho0: 0.3}
+  export_8708_es:        {impulsores: [pib_ea, eurusd, confianza_ind_ea], rho0: 0.0}
+  inversion_equipo_ea:   {impulsores: [pib_ea, euribor3m, confianza_ind_ea], rho0: 0.2}
+  utilizacion_capacidad_ea: {impulsores: [confianza_ind_ea, pib_ea], rho0: 0.9}
+  ipi_c28_eu:            {impulsores: [pib_ea, confianza_ind_ea], rho0: 0.2}
+  ipi_c28_es:            {impulsores: [pib_ea, confianza_ind_ea, euribor3m], rho0: 0.2}
+  ip_aero_us:            {impulsores: [brent], rho0: 0.4}
+  export_8456_8466_es:   {impulsores: [eurusd, confianza_ind_ea], rho0: 0.0}
+  ipi_c275_eu:           {impulsores: [confianza_ind_ea, pib_ea], rho0: 0.2}
+  confianza_consumidor_ea: {impulsores: [pib_ea, euribor3m, brent], rho0: 0.9}
+  permisos_residenciales_es: {impulsores: [euribor3m, pib_es], rho0: 0.0}
+  cobre:                 {impulsores: [pib_ea, eurusd, brent], rho0: 0.3}
+  import_cn_electrodomesticos_eu: {impulsores: [eurusd, pib_ea], rho0: 0.0}
+  ipi_c27_es:            {impulsores: [pib_ea, confianza_ind_ea], rho0: 0.2}
+  construccion_ea:       {impulsores: [pib_ea, euribor3m], rho0: 0.2}
+  construccion_es:       {impulsores: [pib_es, euribor3m], rho0: 0.2}
+  pernoctaciones_hoteleras_eu: {impulsores: [pib_ea, brent], rho0: 0.0}
+  ppi_madera_es:         {impulsores: [pib_es, gas], rho0: 0.4}
+  ppi_acero_eu:          {impulsores: [gas, confianza_ind_ea, brent], rho0: 0.5}
+
+# Anclas del escenario base: media anual de la variable. sd = incertidumbre que se admite
+# alrededor del ancla (condición blanda); sd = 0 la fija.
+anclas:
+  - {variable: pib_ea, anio: 2026, valor: 0.9, sd: 0.15, fuente: "BCE, proyecciones de los expertos, sep-2026"}
+  - {variable: pib_ea, anio: 2027, valor: 1.4, sd: 0.35, fuente: "BCE, proyecciones de los expertos, sep-2026"}
+  - {variable: pib_ea, anio: 2028, valor: 1.5, sd: 0.60, fuente: "BCE, proyecciones de los expertos, sep-2026"}
+  - {variable: pib_es, anio: 2026, valor: 2.6, sd: 0.15, fuente: "Banco de España, proyecciones sep-2026 (vía prensa; cotejar con el informe)"}
+  - {variable: pib_es, anio: 2027, valor: 2.2, sd: 0.35, fuente: "Banco de España, proyecciones sep-2026 (vía prensa; cotejar con el informe)"}
+  - {variable: pib_pv, anio: 2026, valor: 1.9, sd: 0.40, fuente: "Gobierno Vasco, Directrices económicas 2027 (hipótesis de marzo de 2026)"}
+  - {variable: pib_pv, anio: 2027, valor: 1.6, sd: 0.60, fuente: "Gobierno Vasco, Directrices económicas 2027 (hipótesis de marzo de 2026)"}
+  - {variable: hicp_es, anio: 2026, valor: 3.9, sd: 0.15, fuente: "Banco de España, proyecciones sep-2026 (vía prensa; cotejar con el informe)"}
+  - {variable: hicp_es, anio: 2027, valor: 3.7, sd: 0.40, fuente: "Banco de España, proyecciones sep-2026 (vía prensa; cotejar con el informe)"}
+  # Supuestos técnicos del BCE, proyecciones de los expertos de sep-2026, tabla A (fecha de corte
+  # de mercados: 19-ago-2026). Euríbor en nivel; el resto como variación de la media anual:
+  # Brent 69,1 → 89,5 → 78,0 → 73,6 USD/barril; USD/EUR 1,13 → 1,16 → 1,16 → 1,16 (2025 observado: 1,129);
+  # gas TTF 36,2 → 51,0 → 43,3 → 30,3 EUR/MWh, pasado a USD con el tipo de cambio supuesto
+  # porque la serie del modelo (FRED PNGASEUUSDM) está en USD/MMBtu.
+  - {variable: euribor3m, anio: 2026, valor: 2.4, sd: 0.10, fuente: "BCE, proyecciones de los expertos sep-2026, supuestos técnicos"}
+  - {variable: euribor3m, anio: 2027, valor: 3.0, sd: 0.30, fuente: "BCE, proyecciones de los expertos sep-2026, supuestos técnicos"}
+  - {variable: euribor3m, anio: 2028, valor: 3.0, sd: 0.50, fuente: "BCE, proyecciones de los expertos sep-2026, supuestos técnicos"}
+  - {variable: brent, anio: 2026, valor: 29.5, sd: 3.0, fuente: "BCE sep-2026, supuestos técnicos (futuros a 19-ago)"}
+  - {variable: brent, anio: 2027, valor: -12.8, sd: 10.0, fuente: "BCE sep-2026, supuestos técnicos (futuros a 19-ago)"}
+  - {variable: brent, anio: 2028, valor: -5.6, sd: 12.0, fuente: "BCE sep-2026, supuestos técnicos (futuros a 19-ago)"}
+  - {variable: eurusd, anio: 2026, valor: 2.7, sd: 0.5, fuente: "BCE sep-2026, supuestos técnicos"}
+  - {variable: eurusd, anio: 2027, valor: 0.0, sd: 3.0, fuente: "BCE sep-2026, supuestos técnicos"}
+  - {variable: eurusd, anio: 2028, valor: 0.0, sd: 4.0, fuente: "BCE sep-2026, supuestos técnicos"}
+  - {variable: gas, anio: 2026, valor: 44.7, sd: 6.0, fuente: "BCE sep-2026, supuestos técnicos (futuros TTF a 19-ago, en USD)"}
+  - {variable: gas, anio: 2027, valor: -15.1, sd: 15.0, fuente: "BCE sep-2026, supuestos técnicos (futuros TTF a 19-ago, en USD)"}
+  - {variable: gas, anio: 2028, valor: -30.0, sd: 18.0, fuente: "BCE sep-2026, supuestos técnicos (futuros TTF a 19-ago, en USD)"}
+
+divisiones:
+  industria:
+    nombre: Industria (agregado)
+    ventas_2025: 4919
+    fuente_ventas: "MONDRAGON, Informe anual 2025"
+    variables: [pib_ea, pib_es, pib_pv, hicp_es, euribor3m, eurusd, brent, gas, confianza_ind_ea, actividad_ponderada]
+    ponderacion:
+      ipi_c29_es: 1769.2
+      ipi_c28_es: 748.0
+      ipi_c27_es: 730.0
+      construccion_es: 651.0
+  automocion:
+    nombre: Automoción
+    ventas_2025: 1769.2
+    fuente_ventas: "MONDRAGON, Informe anual 2025"
+    cooperativas: "Fagor Ederlan (Edertek), Maier, Cikautxo, Batz, MTC y otras"
+    variables: [pib_ea, pib_pv, gas, euribor3m, ipi_c29_eu, ipi_c29_es, aluminio, ppi_plasticos_eu, coste_laboral_es, export_8708_es]
+  maquina:
+    nombre: Máquina-herramienta y automatización
+    ventas_2025: 748.0
+    fuente_ventas: "MONDRAGON, Informe anual 2025 (Danobatgroup 366 M€ + MIA 382 M€)"
+    cooperativas: "Danobatgroup, Fagor Arrasate, Fagor Automation, Mondragon Assembly"
+    variables: [pib_ea, pib_pv, euribor3m, eurusd, inversion_equipo_ea, utilizacion_capacidad_ea, ipi_c28_eu, ipi_c28_es, ip_aero_us, export_8456_8466_es]
+  componentes:
+    nombre: Componentes
+    ventas_2025: 730.0
+    fuente_ventas: "MONDRAGON, Informe anual 2025"
+    cooperativas: "Copreci, Eika, Embega, Erreka, Fagor Electrónica, Orkli, Tajo"
+    variables: [pib_ea, hicp_es, euribor3m, eurusd, ipi_c275_eu, confianza_consumidor_ea, permisos_residenciales_es, cobre, import_cn_electrodomesticos_eu, ipi_c27_es]
+  construccion:
+    nombre: Construcción
+    ventas_2025: 651.0
+    fuente_ventas: "MONDRAGON, Informe anual 2025"
+    cooperativas: "Onnera Group, Lana, Etorki, Domusa, Kide"
+    variables: [pib_es, pib_pv, hicp_es, euribor3m, construccion_ea, construccion_es, permisos_residenciales_es, pernoctaciones_hoteleras_eu, ppi_madera_es, ppi_acero_eu]

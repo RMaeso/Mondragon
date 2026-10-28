@@ -1,0 +1,385 @@
+# Catálogo de series. Los códigos de filtro son la propuesta inicial y se validan con
+# `python src/verificar.py` antes de estimar: el informe compara la etiqueta que devuelve
+# la fuente con la descripción de esta ficha. Donde hay `alternativas`, el descargador
+# prueba cada juego de filtros en orden hasta que uno devuelve datos.
+#
+# frecuencia: M o Q en origen. agregacion: media (índices, precios, tipos) o suma (flujos).
+# transformacion: dlog (100 x diferencia logarítmica trimestral) o nivel.
+# ajuste: SA (desestacionalizada en origen) o NSA (se añaden dummies trimestrales).
+
+pib_ea:
+  etiqueta: PIB real zona euro
+  unidad: "% var. media anual"
+  fuente: eurostat
+  dataset: namq_10_gdp
+  # EA21: zona euro con Bulgaria (desde 2026). Eurostat ha recalculado la historia con la nueva composición.
+  filtros: {geo: EA21, unit: CLV10_MEUR, s_adj: SCA, na_item: B1GQ}
+  alternativas: [{geo: EA20, unit: CLV10_MEUR, s_adj: SCA, na_item: B1GQ}]
+  frecuencia: Q
+  agregacion: media
+  transformacion: dlog
+  ajuste: SA
+
+pib_es:
+  etiqueta: PIB real España
+  unidad: "% var. media anual"
+  fuente: eurostat
+  dataset: namq_10_gdp
+  filtros: {geo: ES, unit: CLV10_MEUR, s_adj: SCA, na_item: B1GQ}
+  frecuencia: Q
+  agregacion: media
+  transformacion: dlog
+  ajuste: SA
+
+pib_pv:
+  etiqueta: PIB real País Vasco
+  unidad: "% var. media anual"
+  fuente: eustat
+  # Tabla PX_170115_ccet_cet04tb (PIB trimestral por territorio): C.A. de Euskadi, nivel, datos
+  # corregidos de efectos estacionales y de calendario, índice de volumen encadenado, desde 1995-1.
+  # La API PX-Web de Eustat no admite consultas; se usa una consulta guardada (JSON-stat 2) con
+  # punto de inicio fijo, que añade los trimestres nuevos al publicarse. Si deja de responder,
+  # se vuelve a crear desde la web de la tabla o se usa datos/manuales/pib_pv.csv.
+  tabla: PX_170115_ccet_cet04tb
+  consulta_guardada: https://www.eustat.eus/bankupx/sq/af85e2f7-0014-4c9c-9dc5-d2f37d04bbaf
+  frecuencia: Q
+  agregacion: media
+  transformacion: dlog
+  ajuste: SA
+
+hicp_es:
+  etiqueta: Inflación España (IAPC)
+  unidad: "% var. media anual"
+  fuente: eurostat
+  # Desde 2026 el IAPC se publica con ECOICOP ver.2; prc_hicp_midx se congeló en dic-2025.
+  dataset: prc_hicp_minr
+  filtros: {geo: ES, unit: I25, coicop18: TOTAL}
+  alternativas: [{geo: ES, unit: I15, coicop18: TOTAL}]
+  frecuencia: M
+  agregacion: media
+  transformacion: dlog
+  ajuste: NSA_DESEST  # se desestacionaliza (descomposición clásica) antes de entrar en el núcleo
+
+euribor3m:
+  etiqueta: Euríbor 3 meses
+  unidad: "%, media anual"
+  fuente: bce
+  flujo: FM
+  clave: M.U2.EUR.RT.MM.EURIBOR3MD_.HSTA
+  frecuencia: M
+  agregacion: media
+  transformacion: nivel
+  ajuste: SA
+
+eurusd:
+  etiqueta: Tipo de cambio USD por EUR
+  unidad: "% var. media anual"
+  fuente: bce
+  flujo: EXR
+  clave: M.USD.EUR.SP00.A
+  frecuencia: M
+  agregacion: media
+  transformacion: dlog
+  ajuste: SA
+
+brent:
+  etiqueta: Petróleo Brent (USD/barril)
+  unidad: "% var. media anual"
+  fuente: fred
+  serie: POILBREUSDM
+  frecuencia: M
+  agregacion: media
+  transformacion: dlog
+  ajuste: SA
+
+gas:
+  etiqueta: Gas natural Europa (TTF, USD/MMBtu)
+  unidad: "% var. media anual"
+  fuente: fred
+  serie: PNGASEUUSDM
+  frecuencia: M
+  agregacion: media
+  transformacion: dlog
+  ajuste: SA
+
+confianza_ind_ea:
+  etiqueta: Confianza industrial zona euro
+  unidad: "saldo, media anual"
+  fuente: eurostat
+  dataset: ei_bssi_m_r2
+  # Con EA20 la serie se corta en dic-2025: las encuestas se publican ya para EA21.
+  filtros: {geo: EA21, indic: BS-ICI-BAL, s_adj: SA}
+  alternativas: [{geo: EA20, indic: BS-ICI-BAL, s_adj: SA}]
+  frecuencia: M
+  agregacion: media
+  transformacion: nivel
+  ajuste: SA
+
+# --- Satélites: Automoción
+ipi_c29_eu:
+  etiqueta: Producción de vehículos y componentes UE (IPI C29)
+  unidad: "% var. media anual"
+  fuente: eurostat
+  dataset: sts_inpr_m
+  filtros: {geo: EU27_2020, nace_r2: C29, s_adj: SCA, unit: I21, indic_bt: PRD}
+  alternativas: [{geo: EU27_2020, nace_r2: C29, s_adj: SCA, unit: I15, indic_bt: PRD}]
+  frecuencia: M
+  agregacion: media
+  transformacion: dlog
+  ajuste: SA
+
+ipi_c29_es:
+  etiqueta: Producción de vehículos y componentes España (IPI C29)
+  unidad: "% var. media anual"
+  fuente: eurostat
+  dataset: sts_inpr_m
+  filtros: {geo: ES, nace_r2: C29, s_adj: SCA, unit: I21, indic_bt: PRD}
+  alternativas: [{geo: ES, nace_r2: C29, s_adj: SCA, unit: I15, indic_bt: PRD}]
+  frecuencia: M
+  agregacion: media
+  transformacion: dlog
+  ajuste: SA
+
+aluminio:
+  etiqueta: Aluminio (USD/t)
+  unidad: "% var. media anual"
+  fuente: fred
+  serie: PALUMUSDM
+  frecuencia: M
+  agregacion: media
+  transformacion: dlog
+  ajuste: SA
+
+ppi_plasticos_eu:
+  etiqueta: Precios industriales de plásticos en forma primaria UE (C2016)
+  unidad: "% var. media anual"
+  fuente: eurostat
+  dataset: sts_inpp_m
+  filtros: {geo: EU27_2020, nace_r2: C2016, s_adj: NSA, unit: I21, indic_bt: PRC_PRR}
+  alternativas: [{geo: EU27_2020, nace_r2: C201, s_adj: NSA, unit: I21, indic_bt: PRC_PRR}]
+  frecuencia: M
+  agregacion: media
+  transformacion: dlog
+  ajuste: SA
+
+coste_laboral_es:
+  etiqueta: Coste laboral industria manufacturera España
+  unidad: "% var. media anual"
+  fuente: eurostat
+  dataset: lc_lci_r2_q
+  filtros: {geo: ES, nace_r2: C, lcstruct: D1_D4_MD5, unit: I20, s_adj: SCA}
+  frecuencia: Q
+  agregacion: media
+  transformacion: dlog
+  ajuste: SA
+
+export_8708_es:
+  etiqueta: Exportaciones españolas de componentes de automoción (HS 8708)
+  unidad: "% var. anual, valor"
+  fuente: comext
+  dataset: DS-045409  # EU trade since 1988 by HS2-4-6 and CN8
+  filtros: {freq: M, reporter: ES, partner: WORLD, product: "8708", flow: "2", indicators: VALUE_IN_EUROS}
+  frecuencia: M
+  agregacion: suma
+  transformacion: dlog
+  ajuste: NSA
+
+# --- Satélites: Máquina-herramienta y automatización
+inversion_equipo_ea:
+  etiqueta: Inversión en maquinaria y equipo zona euro (incl. material de transporte y TIC)
+  unidad: "% var. media anual"
+  fuente: eurostat
+  dataset: namq_10_an6
+  # N11OG (otra maquinaria) no se publica para la zona euro; N11MG es el agregado de maquinaria y equipo.
+  filtros: {geo: EA21, unit: CLV10_MEUR, s_adj: SCA, asset10: N11MG}
+  alternativas: [{geo: EA20, unit: CLV10_MEUR, s_adj: SCA, asset10: N11MG}]
+  frecuencia: Q
+  agregacion: media
+  transformacion: dlog
+  ajuste: SA
+
+utilizacion_capacidad_ea:
+  etiqueta: Utilización de la capacidad productiva zona euro
+  unidad: "%, media anual"
+  fuente: eurostat
+  dataset: ei_bsin_q_r2
+  filtros: {geo: EA21, indic: BS-ICU-PC, s_adj: SA}
+  alternativas: [{geo: EA20, indic: BS-ICU-PC, s_adj: SA}]
+  frecuencia: Q
+  agregacion: media
+  transformacion: nivel
+  ajuste: SA
+
+ipi_c28_eu:
+  etiqueta: Producción de maquinaria y equipo UE (IPI C28)
+  unidad: "% var. media anual"
+  fuente: eurostat
+  dataset: sts_inpr_m
+  filtros: {geo: EU27_2020, nace_r2: C28, s_adj: SCA, unit: I21, indic_bt: PRD}
+  alternativas: [{geo: EU27_2020, nace_r2: C28, s_adj: SCA, unit: I15, indic_bt: PRD}]
+  frecuencia: M
+  agregacion: media
+  transformacion: dlog
+  ajuste: SA
+
+ipi_c28_es:
+  etiqueta: Producción de maquinaria y equipo España (IPI C28)
+  unidad: "% var. media anual"
+  fuente: eurostat
+  dataset: sts_inpr_m
+  filtros: {geo: ES, nace_r2: C28, s_adj: SCA, unit: I21, indic_bt: PRD}
+  alternativas: [{geo: ES, nace_r2: C28, s_adj: SCA, unit: I15, indic_bt: PRD}]
+  frecuencia: M
+  agregacion: media
+  transformacion: dlog
+  ajuste: SA
+
+ip_aero_us:
+  etiqueta: Producción aeroespacial EE.UU.
+  unidad: "% var. media anual"
+  fuente: fred
+  serie: IPG3364S
+  frecuencia: M
+  agregacion: media
+  transformacion: dlog
+  ajuste: SA
+
+export_8456_8466_es:
+  etiqueta: Exportaciones españolas de máquina-herramienta (HS 8456-8466)
+  unidad: "% var. anual, valor"
+  fuente: comext
+  dataset: DS-045409
+  filtros: {freq: M, reporter: ES, partner: WORLD, product: ["8456", "8457", "8458", "8459", "8460", "8461", "8462", "8463", "8464", "8465", "8466"], flow: "2", indicators: VALUE_IN_EUROS}
+  frecuencia: M
+  agregacion: suma
+  transformacion: dlog
+  ajuste: NSA
+
+# --- Satélites: Componentes
+ipi_c275_eu:
+  etiqueta: Producción de electrodomésticos UE (IPI C275)
+  unidad: "% var. media anual"
+  fuente: eurostat
+  dataset: sts_inpr_m
+  filtros: {geo: EU27_2020, nace_r2: C275, s_adj: SCA, unit: I21, indic_bt: PRD}
+  alternativas: [{geo: EU27_2020, nace_r2: C275, s_adj: CA, unit: I21, indic_bt: PRD}]
+  frecuencia: M
+  agregacion: media
+  transformacion: dlog
+  ajuste: SA
+
+confianza_consumidor_ea:
+  etiqueta: Confianza del consumidor zona euro
+  unidad: "saldo, media anual"
+  fuente: eurostat
+  dataset: ei_bsco_m
+  filtros: {geo: EA21, indic: BS-CSMCI, unit: BAL, s_adj: SA}
+  alternativas: [{geo: EA20, indic: BS-CSMCI, unit: BAL, s_adj: SA}]
+  frecuencia: M
+  agregacion: media
+  transformacion: nivel
+  ajuste: SA
+
+permisos_residenciales_es:
+  etiqueta: Permisos de construcción residencial España
+  unidad: "% var. anual"
+  fuente: eurostat
+  dataset: sts_cobp_q
+  filtros: {geo: ES, indic_bt: BPRM_SQM, cpa2_1: CPA_F41001, s_adj: NSA, unit: I21}
+  alternativas: [{geo: ES, indic_bt: BPRM_SQM, cpa2_1: CPA_F41001, s_adj: NSA, unit: I15}]
+  frecuencia: Q
+  agregacion: media
+  transformacion: dlog
+  ajuste: NSA
+
+cobre:
+  etiqueta: Cobre (USD/t)
+  unidad: "% var. media anual"
+  fuente: fred
+  serie: PCOPPUSDM
+  frecuencia: M
+  agregacion: media
+  transformacion: dlog
+  ajuste: SA
+
+import_cn_electrodomesticos_eu:
+  etiqueta: Importaciones UE desde China de electrodomésticos (HS 8418, 8450, 8516)
+  unidad: "% var. anual, valor"
+  fuente: comext
+  dataset: DS-045409
+  # EU27_2020: composición constante desde 1999 (el código EU mezcla composiciones).
+  filtros: {freq: M, reporter: EU27_2020, partner: CN, product: ["8418", "8450", "8516"], flow: "1", indicators: VALUE_IN_EUROS}
+  frecuencia: M
+  agregacion: suma
+  transformacion: dlog
+  ajuste: NSA
+
+ipi_c27_es:
+  etiqueta: Producción de material y equipo eléctrico España (IPI C27)
+  unidad: "% var. media anual"
+  fuente: eurostat
+  dataset: sts_inpr_m
+  filtros: {geo: ES, nace_r2: C27, s_adj: SCA, unit: I21, indic_bt: PRD}
+  alternativas: [{geo: ES, nace_r2: C27, s_adj: SCA, unit: I15, indic_bt: PRD}]
+  frecuencia: M
+  agregacion: media
+  transformacion: dlog
+  ajuste: SA
+
+# --- Satélites: Construcción
+construccion_ea:
+  etiqueta: Producción en la construcción zona euro
+  unidad: "% var. media anual"
+  fuente: eurostat
+  dataset: sts_copr_m
+  filtros: {geo: EA21, nace_r2: F, s_adj: SCA, unit: I21, indic_bt: PRD}
+  alternativas: [{geo: EA20, nace_r2: F, s_adj: SCA, unit: I21, indic_bt: PRD}]
+  frecuencia: M
+  agregacion: media
+  transformacion: dlog
+  ajuste: SA
+
+construccion_es:
+  etiqueta: Producción en la construcción España
+  unidad: "% var. media anual"
+  fuente: eurostat
+  dataset: sts_copr_m
+  filtros: {geo: ES, nace_r2: F, s_adj: SCA, unit: I21, indic_bt: PRD}
+  alternativas: [{geo: ES, nace_r2: F, s_adj: SCA, unit: I15, indic_bt: PRD}]
+  frecuencia: M
+  agregacion: media
+  transformacion: dlog
+  ajuste: SA
+
+pernoctaciones_hoteleras_eu:
+  etiqueta: Pernoctaciones hoteleras UE
+  unidad: "% var. anual"
+  fuente: eurostat
+  dataset: tour_occ_nim
+  filtros: {geo: EU27_2020, c_resid: TOTAL, nace_r2: I551, unit: NR}
+  frecuencia: M
+  agregacion: suma
+  transformacion: dlog
+  ajuste: NSA
+
+ppi_madera_es:
+  etiqueta: Precios industriales de la madera España (C16)
+  unidad: "% var. media anual"
+  fuente: eurostat
+  dataset: sts_inpp_m
+  filtros: {geo: ES, nace_r2: C16, s_adj: NSA, unit: I21, indic_bt: PRC_PRR}
+  frecuencia: M
+  agregacion: media
+  transformacion: dlog
+  ajuste: SA
+
+ppi_acero_eu:
+  etiqueta: Precios industriales del acero UE (C241)
+  unidad: "% var. media anual"
+  fuente: eurostat
+  dataset: sts_inpp_m
+  filtros: {geo: EU27_2020, nace_r2: C241, s_adj: NSA, unit: I21, indic_bt: PRC_PRR}
+  frecuencia: M
+  agregacion: media
+  transformacion: dlog
+  ajuste: SA

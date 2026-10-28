@@ -1,0 +1,217 @@
+<title>Cuadro Macro MONDRAGON</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800&family=Source+Sans+3:wght@400;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Herramienta: selector de división, cuadro anual 2026-2029 con bandas y gráfico trimestral de la variable elegida. */
+:root{
+  --bg:#f5f6f4; --surface:#fff; --sunk:#eceeea; --fg:#1b2125; --muted:#5b646b; --line:#d5d9d4;
+  --accent:#c4471a; --accent-soft:#f6e3da; --steel:#2f5d73; --steel-soft:#e0eaee;
+  --band1:rgba(47,93,115,.14); --band2:rgba(47,93,115,.26); --hist:#1b2125;
+  --warn:#9a6a00; --warn-soft:#f6ecd2; --ok:#2c6e49; --ok-soft:#e1efe6;
+  --f-display:"Archivo","Helvetica Neue",Arial,sans-serif; --f-body:"Source Sans 3","Segoe UI",system-ui,sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace; --r:6px;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#13171a; --surface:#1b2024; --sunk:#171c1f; --fg:#e6e9e7; --muted:#9aa3a8; --line:#2d3439;
+  --accent:#f07a45; --accent-soft:#3a2219; --steel:#8fbcd1; --steel-soft:#1e3039;
+  --band1:rgba(143,188,209,.16); --band2:rgba(143,188,209,.30); --hist:#e6e9e7;
+  --warn:#e3b54f; --warn-soft:#352b14; --ok:#7cc79a; --ok-soft:#1a2e22; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#13171a; --surface:#1b2024; --sunk:#171c1f; --fg:#e6e9e7; --muted:#9aa3a8; --line:#2d3439;
+  --accent:#f07a45; --accent-soft:#3a2219; --steel:#8fbcd1; --steel-soft:#1e3039;
+  --band1:rgba(143,188,209,.16); --band2:rgba(143,188,209,.30); --hist:#e6e9e7;
+  --warn:#e3b54f; --warn-soft:#352b14; --ok:#7cc79a; --ok-soft:#1a2e22; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font:15px/1.5 var(--f-body)}
+.wrap{max-width:1180px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+h1,h2,h3{font-family:var(--f-display);margin:0;text-wrap:balance;letter-spacing:-.01em}
+h1{font-size:clamp(1.5rem,3.6vw,2.2rem);font-weight:800;line-height:1.1}
+h2{font-size:1.2rem;font-weight:700}
+h3{font-size:.98rem;font-weight:700}
+p{margin:0}
+.muted{color:var(--muted)}
+.eyebrow{font:500 .72rem var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--accent)}
+.num{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+.demo{background:var(--warn-soft);color:var(--warn);border-bottom:1px solid var(--warn);font:700 .9rem var(--f-display)}
+.demo .wrap{padding-block:10px}
+header.top{background:var(--surface);border-bottom:1px solid var(--line)}
+header.top .wrap{padding-block:24px 20px;display:grid;gap:12px}
+.limites{border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:var(--r);padding:12px 14px;background:var(--bg);display:grid;gap:4px;max-width:92ch;font-size:.92rem}
+.limites strong{font-family:var(--f-display)}
+.selector{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--surface);border-bottom:1px solid var(--line)}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--surface)}
+.selector .wrap{display:flex;gap:6px;overflow-x:auto;padding-block:10px;scrollbar-width:none}
+button.div{flex:none;font:600 .9rem var(--f-display);border:1px solid var(--line);background:var(--surface);color:var(--fg);padding:7px 13px;border-radius:999px;cursor:pointer}
+button.div[aria-pressed="true"]{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+main .wrap{display:grid;gap:22px;padding-block:22px 56px}
+.ficha{display:flex;flex-wrap:wrap;gap:6px 22px;align-items:baseline}
+.ficha .kv{display:grid;gap:0}
+.ficha .kv span{font:500 .7rem var(--f-mono);text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.ficha .kv b{font:600 1rem var(--f-display)}
+.tarjeta{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px;display:grid;gap:12px;min-width:0}
+.tarjeta header{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:baseline}
+.tarjeta header p{font-size:.85rem}
+.tabla{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:.9rem}
+th{font:600 .7rem var(--f-mono);text-transform:uppercase;letter-spacing:.06em;color:var(--muted);text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
+th.n,td.n{text-align:right}
+td{padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+tr.fila{cursor:pointer}
+tr.fila:hover td{background:var(--sunk)}
+tr.fila[aria-selected="true"] td{background:var(--steel-soft)}
+td.var b{font-weight:600}
+td.var small{display:block;color:var(--muted);font-size:.78rem}
+.med{font:500 .95rem var(--f-mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+.rng{display:block;font:400 .72rem var(--f-mono);color:var(--muted);white-space:nowrap}
+.tag{display:inline-block;font:600 .66rem var(--f-display);padding:1px 6px;border-radius:999px;margin-left:6px;vertical-align:1px}
+.tag.ancla{background:var(--accent-soft);color:var(--accent)}
+.tag.nucleo{background:var(--sunk);color:var(--muted)}
+.grafico svg{display:block;width:100%;height:auto}
+.leyenda{display:flex;gap:14px;flex-wrap:wrap;font-size:.8rem;color:var(--muted)}
+.leyenda i{display:inline-block;width:14px;height:10px;border-radius:2px;vertical-align:-1px;margin-right:5px}
+.dos{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+@media (max-width:860px){.dos{grid-template-columns:minmax(0,1fr)}}
+ul.lista{margin:0;padding-left:18px;display:grid;gap:4px;font-size:.88rem}
+.fine{font-size:.8rem;color:var(--muted)}
+.aviso{background:var(--warn-soft);color:var(--warn);border-radius:var(--r);padding:8px 12px;font-size:.86rem}
+@media (max-width:640px){
+  td,th{padding:7px 6px}
+  .rng{display:none}
+  td.var small,.tag.nucleo{display:none}
+}
+</style>
+
+<div class="demo" id="demo" hidden><div class="wrap">DATOS SIMULADOS · Esta versión muestra la forma del entregable. Ninguna cifra es real y no debe usarse fuera de esta revisión.</div></div>
+<header class="top">
+  <div class="wrap">
+    <span class="eyebrow">MONDRAGON · Área de Industria · Escenario base</span>
+    <h1>Cuadro macro por división</h1>
+    <p class="muted" style="max-width:72ch">Proyección más probable para 2026-2029 de las variables que mueven el negocio de cada división. Cada cifra es la mediana de la distribución del modelo; debajo, el rango que contiene dos de cada tres resultados.</p>
+    <div class="limites">
+      <strong>Límites</strong>
+      <p>Escenario base, sin riesgos concretos. Los años 2026-2028 del núcleo están anclados al consenso publicado (BCE, Banco de España, Gobierno Vasco) y a los datos ya conocidos del trimestre en curso; el modelo traslada ese consenso a las variables sectoriales, que no tienen previsión pública.</p>
+      <p>Las variables sectoriales salen de ecuaciones estimadas con datos públicos de cada rama, no de datos de las cooperativas. Los rangos son anchos a partir de 2027: la mediana es la referencia, no una promesa.</p>
+    </div>
+  </div>
+</header>
+<nav class="selector" aria-label="División"><div class="wrap" id="divs"></div></nav>
+<main><div class="wrap">
+  <div class="ficha" id="ficha"></div>
+  <section class="tarjeta">
+    <header><h2 id="t-cuadro">Cuadro anual</h2><p class="muted">Media anual. Pulsa una variable para ver su senda trimestral.</p></header>
+    <div class="tabla"><table><thead id="cab"></thead><tbody id="cuerpo"></tbody></table></div>
+    <p class="fine">% var. media anual salvo tipos, saldos de confianza y utilización de capacidad, que se dan en nivel medio del año. «Anclada»: variable condicionada al consenso.</p>
+  </section>
+  <section class="tarjeta">
+    <header><h2 id="t-graf">Senda trimestral</h2><p class="muted" id="s-graf"></p></header>
+    <div class="grafico" id="graf"></div>
+    <div class="leyenda"><span><i style="background:var(--hist)"></i>Dato publicado</span><span><i style="background:var(--steel)"></i>Mediana</span><span><i style="background:var(--band2)"></i>Rango 16-84 %</span><span><i style="background:var(--band1)"></i>Rango 5-95 %</span></div>
+  </section>
+  <div class="dos">
+    <section class="tarjeta"><h3>Anclas del escenario base</h3><div id="anclas"></div></section>
+    <section class="tarjeta"><h3>Calidad del modelo</h3><div id="calidad"></div></section>
+  </div>
+  <section class="tarjeta"><h3>Cómo se construye</h3>
+    <ul class="lista">
+      <li>Núcleo: BVAR trimestral con medias de largo plazo informativas (Villani, 2009), dos retardos y prior de Minnesota. Las ecuaciones de 2020T1-2021T2 no entran en la estimación.</li>
+      <li>Escenario base: previsión condicionada (Waggoner y Zha, 1999) a las medias anuales del consenso, con una tolerancia, y a los meses ya publicados del trimestre en curso.</li>
+      <li>Variables sectoriales: ecuaciones satélite bayesianas que dependen del núcleo en el trimestre y el anterior, simuladas sobre cada senda del núcleo.</li>
+      <li>Actividad ponderada (Industria): media de la producción de las ramas de cada división, ponderada por sus ventas de 2025.</li>
+    </ul>
+    <div id="avisos"></div>
+    <p class="fine" id="meta"></p>
+  </section>
+</div></main>
+
+<script id="datos" type="application/json">/*DATOS*/</script>
+<script>
+(function(){
+var D=JSON.parse(document.getElementById("datos").textContent);
+var R=D.resultados,F=D.fichas,ANIOS=D.meta.anios.map(String);
+var est={div:"industria",v:null};
+function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
+function f(x,d){if(x==null||!isFinite(x))return "–";return x.toLocaleString("es-ES",{minimumFractionDigits:d,maximumFractionDigits:d})}
+function dec(v){var t=F[v]&&F[v].tipo;var u=(F[v]&&F[v].unidad)||"";return (t==="nivel")?(u.indexOf("%")===0?2:1):1}
+if(D.meta.simulado)document.getElementById("demo").hidden=false;
+var orden=["industria","automocion","maquina","componentes","construccion"];
+var cont=document.getElementById("divs");
+orden.filter(function(k){return D.divisiones[k]}).forEach(function(k){
+  var b=document.createElement("button");b.className="div";b.type="button";b.textContent=D.divisiones[k].nombre;
+  b.setAttribute("aria-pressed",k===est.div?"true":"false");
+  b.addEventListener("click",function(){est.div=k;est.v=null;cont.querySelectorAll("button").forEach(function(o){o.setAttribute("aria-pressed","false")});b.setAttribute("aria-pressed","true");pintar()});
+  cont.appendChild(b);
+});
+function pintar(){
+  var d=D.divisiones[est.div];
+  document.getElementById("ficha").innerHTML=
+    '<div class="kv"><span>División</span><b>'+esc(d.nombre)+'</b></div>'+
+    (d.ventas_2025?'<div class="kv"><span>Ventas 2025</span><b class="num">'+f(d.ventas_2025,0)+' M€</b></div>':'')+
+    (d.cooperativas?'<div class="kv" style="max-width:60ch"><span>Cooperativas</span><b style="font-weight:500;font-family:var(--f-body)">'+esc(d.cooperativas)+'</b></div>':'')+
+    (d.ausentes&&d.ausentes.length?'<p class="aviso" style="flex-basis:100%">Sin datos para: '+d.ausentes.map(function(v){return esc(v)}).join(", ")+'</p>':'');
+  document.getElementById("cab").innerHTML='<tr><th>Variable</th>'+ANIOS.map(function(a){return '<th class="n">'+a+'</th>'}).join("")+'</tr>';
+  if(!est.v||d.variables.indexOf(est.v)<0)est.v=d.variables[0];
+  document.getElementById("cuerpo").innerHTML=d.variables.map(function(v){
+    var r=R[v],fi=F[v]||{},dd=dec(v);
+    var celdas=ANIOS.map(function(a){var x=r.anual[a];if(!x)return '<td class="n">–</td>';
+      return '<td class="n"><span class="med">'+f(x.p50,dd)+'</span><span class="rng">'+f(x.p16,dd)+' a '+f(x.p84,dd)+'</span></td>'}).join("");
+    return '<tr class="fila" tabindex="0" data-v="'+esc(v)+'" aria-selected="'+(v===est.v)+'"><td class="var"><b>'+esc(fi.etiqueta||v)+'</b>'+
+      (fi.anclada?'<span class="tag ancla">anclada</span>':'')+(fi.rol==="núcleo"?'<span class="tag nucleo">núcleo</span>':'')+
+      '<small>'+esc(fi.unidad||"")+(fi.ultimo_dato?' · último dato '+esc(fi.ultimo_dato):'')+'</small></td>'+celdas+'</tr>';
+  }).join("");
+  document.querySelectorAll("tr.fila").forEach(function(tr){
+    function sel(){est.v=tr.getAttribute("data-v");document.querySelectorAll("tr.fila").forEach(function(o){o.setAttribute("aria-selected",String(o===tr))});grafico()}
+    tr.addEventListener("click",sel);tr.addEventListener("keydown",function(e){if(e.key==="Enter"||e.key===" "){e.preventDefault();sel()}});
+  });
+  grafico();
+}
+function grafico(){
+  var v=est.v,r=R[v],fi=F[v]||{},nivel=fi.tipo==="nivel";
+  document.getElementById("t-graf").textContent=fi.etiqueta||v;
+  document.getElementById("s-graf").textContent=nivel?"Nivel trimestral":"% var. interanual trimestral";
+  var hq=r.historia.trimestres,hv=r.historia.valores,fq=r.trimestres,T=r.trimestral;
+  var et=hq.concat(fq),n=et.length,x0=hq.length-1;
+  var W=Math.max(320,Math.round(document.getElementById("graf").clientWidth||760)),Hh=W<560?230:280,m={l:46,r:12,t:12,b:28};
+  var vals=hv.concat(T.p05,T.p95).filter(function(x){return x!=null&&isFinite(x)});
+  var lo=Math.min.apply(null,vals),hi=Math.max.apply(null,vals);
+  if(!nivel){lo=Math.min(lo,0);hi=Math.max(hi,0)}
+  var pad=(hi-lo)*0.08||1;lo-=pad;hi+=pad;
+  var X=function(i){return m.l+(W-m.l-m.r)*i/(n-1)},Y=function(y){return m.t+(Hh-m.t-m.b)*(1-(y-lo)/(hi-lo))};
+  var st=Math.pow(10,Math.floor(Math.log10((hi-lo)/4)));st=[1,2,5,10].map(function(k){return k*st}).filter(function(k){return (hi-lo)/k<=6})[0];
+  var s='<svg viewBox="0 0 '+W+' '+Hh+'" role="img" aria-label="Senda trimestral de '+esc(fi.etiqueta||v)+'">';
+  for(var t=Math.ceil(lo/st)*st;t<=hi;t+=st){s+='<line x1="'+m.l+'" x2="'+(W-m.r)+'" y1="'+Y(t)+'" y2="'+Y(t)+'" stroke="var(--line)" stroke-width="1"/><text x="'+(m.l-6)+'" y="'+(Y(t)+4)+'" text-anchor="end" font-size="11" fill="var(--muted)" font-family="JetBrains Mono,monospace">'+f(t,st<1?1:0)+'</text>'}
+  if(!nivel&&lo<0&&hi>0)s+='<line x1="'+m.l+'" x2="'+(W-m.r)+'" y1="'+Y(0)+'" y2="'+Y(0)+'" stroke="var(--muted)" stroke-width="1"/>';
+  et.forEach(function(e,i){if(/Q1$/.test(e))s+='<text x="'+X(i)+'" y="'+(Hh-8)+'" text-anchor="middle" font-size="11" fill="var(--muted)">'+e.slice(0,4)+'</text>'});
+  s+='<line x1="'+X(x0)+'" x2="'+X(x0)+'" y1="'+m.t+'" y2="'+(Hh-m.b)+'" stroke="var(--muted)" stroke-dasharray="3 3"/>';
+  function banda(a,b,col){var up=fq.map(function(_,j){return [x0+1+j,T[b][j]]}),dn=fq.map(function(_,j){return [x0+1+j,T[a][j]]}).reverse();
+    up.unshift([x0,hv[hv.length-1]]);dn.push([x0,hv[hv.length-1]]);
+    return '<path d="'+up.concat(dn).map(function(p,k){return (k?"L":"M")+X(p[0]).toFixed(1)+","+Y(p[1]).toFixed(1)}).join("")+'Z" fill="'+col+'"/>'}
+  s+=banda("p05","p95","var(--band1)")+banda("p16","p84","var(--band2)");
+  s+='<path d="'+hv.map(function(y,i){return (i?"L":"M")+X(i).toFixed(1)+","+Y(y).toFixed(1)}).join("")+'" fill="none" stroke="var(--hist)" stroke-width="2"/>';
+  var med=[[x0,hv[hv.length-1]]].concat(fq.map(function(_,j){return [x0+1+j,T.p50[j]]}));
+  s+='<path d="'+med.map(function(p,k){return (k?"L":"M")+X(p[0]).toFixed(1)+","+Y(p[1]).toFixed(1)}).join("")+'" fill="none" stroke="var(--steel)" stroke-width="2.2"/>';
+  s+='<circle cx="'+X(x0)+'" cy="'+Y(hv[hv.length-1])+'" r="3.5" fill="var(--hist)"/></svg>';
+  document.getElementById("graf").innerHTML=s;
+}
+function lateral(){
+  var a=D.anclas||[];
+  document.getElementById("anclas").innerHTML=a.length?'<div class="tabla"><table><thead><tr><th>Variable</th><th class="n">Año</th><th class="n">Ancla</th><th class="n">±</th><th>Fuente</th></tr></thead><tbody>'+
+    a.map(function(x){return '<tr><td>'+esc(x.etiqueta)+'</td><td class="n num">'+x.anio+'</td><td class="n num">'+f(x.valor,1)+'</td><td class="n num">'+f(x.sd,2)+'</td><td class="fine">'+esc(x.fuente)+'</td></tr>'}).join("")+'</tbody></table></div>'
+    :'<p class="aviso">'+(D.meta.simulado?"En la versión simulada no se aplican las anclas reales: no tiene sentido condicionar datos ficticios a previsiones reales.":"No se ha aplicado ningún ancla.")+'</p>';
+  var c='<ul class="lista">';
+  c+='<li>Muestra del núcleo '+esc(D.meta.muestra)+'; '+f(D.meta.sorteos,0)+' sorteos; '+D.meta.retardos+' retardos; λ₁ = '+D.meta.lambda1+'.</li>';
+  if(D.backtest){var bt=D.backtest,lam=String(bt.lambda_recomendado);c+='<li>Prueba fuera de muestra ('+bt.origenes.length+' orígenes): RMSE del BVAR frente a un AR(1), media de variables y horizontes = '+f(bt.ratio_medio[lam],2)+' (menos de 1 mejora al AR(1)).</li>'}
+  else c+='<li>Prueba fuera de muestra pendiente de ejecutar.</li>';
+  var sat=(D.satelites||[]).slice().sort(function(a,b){return a.r2-b.r2});
+  if(sat.length){c+='<li>Ajuste de los satélites (R²): mediana '+f(sat[Math.floor(sat.length/2)].r2,2)+'; más bajo '+esc(sat[0].id)+' ('+f(sat[0].r2,2)+'). Un R² bajo indica que el núcleo explica poco de esa variable y su senda es sobre todo su propia inercia.</li>'}
+  c+='</ul>';document.getElementById("calidad").innerHTML=c;
+  var av=D.avisos||[];
+  document.getElementById("avisos").innerHTML=av.length?'<div class="aviso"><b>Avisos de la ejecución</b><ul class="lista">'+av.map(function(x){return '<li>'+esc(x)+'</li>'}).join("")+'</ul></div>':'';
+  document.getElementById("meta").textContent="Generado "+D.meta.generado+" · último trimestre completo del núcleo "+D.meta.ultimo_trimestre_nucleo+(D.meta.simulado?" · DATOS SIMULADOS":"");
+}
+pintar();lateral();
+var w0=window.innerWidth;window.addEventListener("resize",function(){if(Math.abs(window.innerWidth-w0)>40){w0=window.innerWidth;grafico()}});
+})();
+</script>

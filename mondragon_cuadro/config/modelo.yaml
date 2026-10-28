@@ -7,7 +7,7 @@ muestra:
 
 nucleo:
   retardos: 2
-  lambda1: 0.2        # se contrasta en el backtest con 0.1 y 0.3
+  lambda1: 0.1        # backtest 28-10-2026: ratio RMSE frente a AR(1) 0,945 (0,1), 0,973 (0,2), 0,997 (0,3)
   lambda2: 0.5
   sorteos: 4000
   descarte: 1000
